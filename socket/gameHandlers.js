@@ -6,11 +6,20 @@ function registerGameHandlers(io, socket, rooms) {
 
     room.phase = "playing";
     room.currentQuestion = 0;
-    io.to(roomCode).emit("game_started");
 
-    const q = room.questions[0];
-    io.to(roomCode).emit("new_question", {
-      index: 0,
+    io.to(roomCode).emit("game_started");
+  });
+
+  socket.on("get_current_question", () => {
+    const { roomCode } = socket.data;
+    const room = rooms[roomCode];
+    if (!room || room.phase !== "playing") return;
+
+    const q = room.questions[room.currentQuestion];
+    if (!q) return;
+
+    socket.emit("new_question", {
+      index: room.currentQuestion,
       text: q.text,
       total: room.questions.length,
     });
@@ -22,16 +31,13 @@ function registerGameHandlers(io, socket, rooms) {
     if (!room || role !== "player" || room.phase !== "playing") return;
     if (room.currentQuestion !== questionIndex) return;
 
-    // Ambil 1 kata saja, lowercase
     const cleanAnswer = answer.trim().split(/\s+/)[0].toLowerCase();
     room.players[socket.id].answers[questionIndex] = cleanAnswer;
 
-    // Kumpulkan semua jawaban soal ini
     const answers = Object.values(room.players)
       .map((p) => p.answers[questionIndex])
       .filter(Boolean);
 
-    // Broadcast ke host saja untuk wordcloud
     io.to(room.hostId).emit("wordcloud_update", { answers });
   });
 

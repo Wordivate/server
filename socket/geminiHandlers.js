@@ -6,9 +6,7 @@ function registerGeminiHandlers(io, socket, rooms) {
     const room = rooms[roomCode];
     if (!room || role !== "host" || room.phase !== "lobby") return;
     if (!topic || typeof topic !== "string") {
-      return socket.emit("gemini_error", {
-        message: "Topik wajib diisi.",
-      });
+      return socket.emit("gemini_error", { message: "Topik wajib diisi." });
     }
 
     room.phase = "generating";
@@ -22,9 +20,9 @@ Jawaban (baseAnswer) harus satu kata, huruf kecil semua, tanpa tanda baca.
 
 Kembalikan HANYA JSON array berikut, tanpa teks lain, tanpa markdown:
 [
-	{ "text": "teks pertanyaan?", "baseAnswer": "satukatajawabannya" }
+  { "text": "teks pertanyaan?", "baseAnswer": "satukatajawabannya" }
 ]
-			`.trim();
+      `.trim();
 
       const raw = await generateContent(prompt);
       const questions = parseGeminiJSON(raw);
@@ -83,15 +81,15 @@ ${JSON.stringify(gradingData, null, 2)}
 
 Kembalikan HANYA JSON array berikut, tanpa teks lain, tanpa markdown:
 [
-	{
-		"questionIndex": 0,
-		"results": [
-			{ "nickname": "Ahmad", "correct": true },
-			{ "nickname": "Reza",  "correct": false }
-		]
-	}
+  {
+    "questionIndex": 0,
+    "results": [
+      { "nickname": "Ahmad", "correct": true },
+      { "nickname": "Reza",  "correct": false }
+    ]
+  }
 ]
-			`.trim();
+      `.trim();
 
       const raw = await generateContent(prompt);
       const gradingResult = parseGeminiJSON(raw);
@@ -130,6 +128,7 @@ Kembalikan HANYA JSON array berikut, tanpa teks lain, tanpa markdown:
         .map((p, i) => ({ rank: i + 1, ...p }));
 
       room.phase = "result";
+      room.rankings = rankings; // simpan di room state
       io.to(roomCode).emit("show_leaderboard", { rankings });
     } catch (err) {
       console.error("Grading error:", err);
@@ -145,8 +144,17 @@ Kembalikan HANYA JSON array berikut, tanpa teks lain, tanpa markdown:
         })),
       }));
       room.phase = "result";
+      room.rankings = rankings; // simpan di room state
       io.to(roomCode).emit("show_leaderboard", { rankings });
     }
+  });
+
+  socket.on("get_leaderboard", () => {
+    const { roomCode } = socket.data;
+    const room = rooms[roomCode];
+    if (!room || !room.rankings) return;
+
+    socket.emit("show_leaderboard", { rankings: room.rankings });
   });
 }
 
