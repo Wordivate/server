@@ -119,6 +119,8 @@ Kembalikan HANYA JSON array berikut, tanpa teks lain, tanpa markdown:
             );
             return {
               questionIndex: qi,
+              questionText: room.questions[qi]?.text || "",
+              baseAnswer: room.questions[qi]?.baseAnswer || "",
               answer: ans || "",
               correct: playerResult?.correct ?? false,
             };
