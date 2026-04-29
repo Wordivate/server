@@ -1,0 +1,29 @@
+{
+  "name": "wordivate-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Wordivate/wordivate-server.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Wordivate/wordivate-server/issues"
+  },
+  "homepage": "https://github.com/Wordivate/wordivate-server#readme",
+  "dependencies": {
+    "@google/genai": "^1.50.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "socket.io": "^4.8.3"
+  }
+}
